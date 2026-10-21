@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disk Scheduling Simulator (FCFS, SSTF, SCAN, C-SCAN, LOOK)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- Top Header Bar -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <img src="image.png" alt="College Logo" class="header-logo">
+        <div class="title-group">
+          <h1 class="app-title">Disk Scheduling Simulator</h1>
+          <span class="app-badge">FCFS · SSTF · SCAN · C-SCAN · LOOK</span>
+        </div>
+      </div>
+      <div class="top-bar-right">
+        <button type="button" id="loadDefaultBtn" class="btn-text">&#8634; Load Standard Example</button>
+      </div>
+    </header>
+
+    <!-- Error Alert Banner -->
+    <div id="errorBanner" class="alert-box" style="display: none;" role="alert">
+      <span class="alert-icon">!</span>
+      <span id="errorMessage" class="alert-text"></span>
+      <button type="button" id="dismissAlertBtn" class="alert-close" aria-label="Dismiss">&times;</button>
+    </div>
+
+    <!-- Main Side-by-Side Dashboard Body -->
+    <main class="dashboard-body">
+
+      <!-- LEFT PANE: Inputs, Multi-Algo Selection & Controls -->
+      <aside class="left-pane">
+
+        <!-- 1. Input Configuration Card -->
+        <section class="pane-card input-card">
+          <div class="card-title-row">
+            <h2 class="card-title">1. Input Configuration</h2>
+          </div>
+
+          <div class="form-group">
+            <label for="requestQueueInput">Disk Request Queue</label>
+            <input 
+              type="text" 
+              id="requestQueueInput" 
+              placeholder="e.g. 98, 183, 37, 122, 14, 124, 65, 67" 
+              value="98, 183, 37, 122, 14, 124, 65, 67"
+            >
+            <div class="input-helper">Comma-separated cylinder/track numbers (0 to Max Track)</div>
+          </div>
+
+          <div class="input-row-2">
+            <div class="form-group">
+              <label for="initialHeadInput">Initial Head</label>
+              <input type="number" id="initialHeadInput" placeholder="53" value="53" min="0">
+            </div>
+
+            <div class="form-group">
+              <label for="diskSizeInput">Disk Tracks</label>
+              <input type="number" id="diskSizeInput" placeholder="200" value="200" min="10">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="headDirectionSelect">Initial Direction</label>
+            <select id="headDirectionSelect">
+              <option value="high" selected>Towards Larger Tracks (Outward &rarr; Max)</option>
+              <option value="low">Towards Smaller Tracks (Inward &rarr; 0)</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- 2. Multi-Algorithm Selection Card (Max 5) -->
+        <section class="pane-card algo-card">
+          <div class="card-title-row">
+            <div class="algo-title-group">
+              <h2 class="card-title">2. Select Algorithms</h2>
+              <span id="algoCountBadge" class="count-badge">5/5 Selected</span>
+            </div>
+            <div class="algo-quick-actions">
+              <button type="button" id="btnSelectAll" class="btn-micro">Select All</button>
+            </div>
+          </div>
+
+          <div class="algo-selection-instruction">
+            Choose which algorithms to compare (select 1 to 5 algorithms):
+          </div>
+
+          <!-- 5 Algorithm Toggle Items -->
+          <div class="algo-selector-list" id="algoSelectorList">
+
+            <div class="algo-choice selected" data-algo="FCFS" id="choiceFCFS" role="checkbox" aria-checked="true" tabindex="0">
+              <div class="algo-choice-left">
+                <span class="custom-check">&#10003;</span>
+                <span class="algo-color-dot dot-fcfs"></span>
+                <div class="algo-name-block">
+                  <span class="algo-title-text">FCFS</span>
+                  <span class="algo-sub-text">First-Come, First-Served</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="algo-choice selected" data-algo="SSTF" id="choiceSSTF" role="checkbox" aria-checked="true" tabindex="0">
+              <div class="algo-choice-left">
+                <span class="custom-check">&#10003;</span>
+                <span class="algo-color-dot dot-sstf"></span>
+                <div class="algo-name-block">
+                  <span class="algo-title-text">SSTF</span>
+                  <span class="algo-sub-text">Shortest Seek Time First</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="algo-choice selected" data-algo="SCAN" id="choiceSCAN" role="checkbox" aria-checked="true" tabindex="0">
+              <div class="algo-choice-left">
+                <span class="custom-check">&#10003;</span>
+                <span class="algo-color-dot dot-scan"></span>
+                <div class="algo-name-block">
+                  <span class="algo-title-text">SCAN</span>
+                  <span class="algo-sub-text">Elevator Algorithm</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="algo-choice selected" data-algo="CSCAN" id="choiceCSCAN" role="checkbox" aria-checked="true" tabindex="0">
+              <div class="algo-choice-left">
+                <span class="custom-check">&#10003;</span>
+                <span class="algo-color-dot dot-cscan"></span>
+                <div class="algo-name-block">
+                  <span class="algo-title-text">C-SCAN</span>
+                  <span class="algo-sub-text">Circular SCAN</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="algo-choice selected" data-algo="LOOK" id="choiceLOOK" role="checkbox" aria-checked="true" tabindex="0">
+              <div class="algo-choice-left">
+                <span class="custom-check">&#10003;</span>
+                <span class="algo-color-dot dot-look"></span>
+                <div class="algo-name-block">
+                  <span class="algo-title-text">LOOK</span>
+                  <span class="algo-sub-text">Look Elevator (No Bound Jump)</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 3. Actions Card -->
+        <section class="pane-card action-card">
+          <div class="controls-toolbar">
+            <button type="button" id="startBtn" class="btn btn-primary">&#9654; Calculate &amp; Compare</button>
+            <button type="button" id="resetBtn" class="btn btn-outline">&#8635; Reset</button>
+          </div>
+        </section>
+
+      </aside>
+
+      <!-- RIGHT PANE: Bar Chart Visualization & Best/Worst Results -->
+      <section class="right-pane">
+        <div class="pane-card viz-card">
+
+          <!-- Right Card Header -->
+          <div class="card-title-row">
+            <div class="viz-header-title">
+              <h2 class="card-title">Results: Total Head Movement Comparison</h2>
+              <span class="viz-sub">Comparative seek time across selected algorithms</span>
+            </div>
+            <span id="currentStatusBadge" class="status-badge">Ready</span>
+          </div>
+
+          <!-- Best & Worst Highlights Banner -->
+          <div id="highlightsRow" class="highlights-row">
+            <!-- Best Performer Card -->
+            <div class="highlight-card card-best" id="bestCard">
+              <div class="highlight-icon-wrap">
+                <span class="highlight-icon">&#9733;</span>
+              </div>
+              <div class="highlight-content">
+                <div class="highlight-tag">BEST ALGORITHM (Least Seek)</div>
+                <div class="highlight-main">
+                  <span class="highlight-name" id="bestAlgoName">SSTF</span>
+                  <span class="highlight-val" id="bestSeekVal">236 cyl</span>
+                </div>
+                <div class="highlight-sub" id="bestAlgoSub">Minimum disk head movement</div>
+              </div>
+            </div>
+
+            <!-- Worst Performer Card -->
+            <div class="highlight-card card-worst" id="worstCard">
+              <div class="highlight-icon-wrap">
+                <span class="highlight-icon">&#9650;</span>
+              </div>
+              <div class="highlight-content">
+                <div class="highlight-tag">WORST ALGORITHM (Most Seek)</div>
+                <div class="highlight-main">
+                  <span class="highlight-name" id="worstAlgoName">FCFS</span>
+                  <span class="highlight-val" id="worstSeekVal">640 cyl</span>
+                </div>
+                <div class="highlight-sub" id="worstAlgoSub">Maximum disk head movement</div>
+              </div>
+            </div>
+
+            <!-- Difference Insight Banner -->
+            <div class="efficiency-pill" id="efficiencyBanner">
+              <span class="pill-bolt">&#9889;</span>
+              <span id="efficiencyText">SSTF saves 404 cylinders (63.1% reduction) compared to FCFS</span>
+            </div>
+          </div>
+
+          <!-- Single Algorithm Evaluation Banner (shown when only 1 algo is selected) -->
+          <div id="singleAlgoBanner" class="single-eval-banner" style="display: none;">
+            <span class="single-eval-tag">Single Algorithm Evaluated:</span>
+            <span id="singleEvalDetails" class="single-eval-details"></span>
+          </div>
+
+          <!-- Interactive Bar Chart Area -->
+          <div class="chart-wrapper" id="chartWrapper">
+            <svg id="barChartSvg" class="bar-chart-svg" viewBox="0 0 840 380" preserveAspectRatio="xMidYMid meet">
+              <!-- Rendered via JS -->
+            </svg>
+          </div>
+
+          <!-- Servicing Order Sequences & Breakdown Section -->
+          <div class="sequence-results-section">
+            <div class="seq-results-header">
+              <span class="seq-results-title">Servicing Sequences for Selected Algorithms:</span>
+              <span class="seq-results-note">(Click any sequence node to inspect track)</span>
+            </div>
+            <div class="sequence-cards-grid" id="sequenceCardsGrid">
+              <!-- Dynamically populated cards for each selected algo -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
