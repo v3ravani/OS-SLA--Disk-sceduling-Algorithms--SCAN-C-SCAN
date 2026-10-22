@@ -1,6 +1,6 @@
 # Disk Scheduling Algorithms — SCAN & C-SCAN
 
-A simulator demonstrating SCAN and C-SCAN algorithms with LOOK, SSTF, and FCFS.
+A simulator demonstrating analysis of SCAN and C-SCAN algorithms with LOOK, SSTF, and FCFS.
 
 ## Team Members
 
